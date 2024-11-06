@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package oneofenum;
+
+option go_package = "github.com/afikrim/pot/example/gen/oneofenum";
+
+enum ExampleEnum {
+  EXAMPLE_ENUM_UNSPECIFIED = 0;
+  EXAMPLE_ENUM_FIRST = 1;
+}
+
+message OneofEnumMessage {
+  oneof one {
+    ExampleEnum example_enum = 1;
+  }
+}

@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package sub2;
+
+option go_package = "github.com/afikrim/pot/example/gen/sub2";
+
+message IdMessage {
+  string uuid = 1;
+}

@@ -1,0 +1,9 @@
+syntax = "proto2";
+
+package sub;
+
+option go_package = "github.com/afikrim/pot/example/gen/sub";
+
+message StringMessage {
+  required string value = 1;
+}
