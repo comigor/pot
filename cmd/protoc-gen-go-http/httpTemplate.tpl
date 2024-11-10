@@ -20,42 +20,43 @@ type {{$svcType}}HTTPServer interface {
 {{- end}}
 }
 
+func Register{{$svcType}}HTTPServer(srv {{$svcType}}HTTPServer) http.Handler {
+  return pot.RegisterService(_{{$svcType}}_HTTP_ServiceDesc, srv)
+}
+
 {{range .Methods}}
-func _{{$svcType}}_{{.Name}}{{.Num}}_HTTP_Handler(srv {{$svcType}}HTTPServer, middleware func(http.HandlerFunc) http.HandlerFunc) http.HandlerFunc {
-	return func(rw http.ResponseWriter, r *http.Request) {
-    binder := &binder.Binder{
-      Request: r,
-      Pattern: "{{.Path}}",
-    }
-
-		var in {{.Request}}
-		if err := binder.Bind(&in); err != nil {
-			return err
-		}
-
-    *r = *r.WithContext(context.WithValue(ctx, "http_operation", Operation_{{$svcType}}_{{.OriginalName}}))
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.{{.Name}}(ctx, req.(*{{.Request}}))
-		})
-    h := middleware(func(rw http.ResponseWriter, r *http.Request) {
-      
-    })
-
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-
-		reply := out.(*{{.Reply}})
-
-		return ctx.Result(200, reply{{.ResponseBody}})
-	}
+func _{{$svcType}}_{{.Name}}{{.Num}}_HTTP_Handler(ctx context.Context, srv interface{}, dec pot.DecoderFunc, middleware pot.MiddlewareFunc) (interface{}, error) {
+  in := new({{.Request}})
+  if err := dec(in); err != nil {
+    return nil, err
+  }
+  if middleware == nil {
+    return srv.({{$svcType}}HTTPServer).{{.Name}}(ctx, in)
+  }
+  h := middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+    return srv.({{$svcType}}HTTPServer).{{.Name}}(ctx, req.(*{{.Request}}))
+  })
+  return h(ctx, in)
 }
 {{end}}
 
+var _{{$svcType}}_HTTP_ServiceDesc = pot.ServiceDesc{
+  ServiceName: "{{$svcName}}",
+  Methods: []pot.MethodDesc{
+    {{- range .Methods}}
+    {
+      MethodName: "{{.Name}}",
+      HttpMethod: "{{.Method}}",
+      HttpPath: "{{.Path}}",
+      Handler: _{{$svcType}}_{{.Name}}{{.Num}}_HTTP_Handler,
+    },
+    {{- end}}
+  },
+}
+
 type {{$svcType}}HTTPClient interface {
 {{- range .MethodSets}}
-	{{.Name}}(ctx context.Context, req *{{.Request}}, opts ...http.CallOption) (rsp *{{.Reply}}, err error)
+	{{.Name}}(ctx context.Context, in *{{.Request}}, opts ...option.Option) (*{{.Reply}}, error)
 {{- end}}
 }
 
@@ -68,20 +69,31 @@ func New{{$svcType}}HTTPClient (client *http.Client) {{$svcType}}HTTPClient {
 }
 
 {{range .MethodSets}}
-func (c *{{$svcType}}HTTPClientImpl) {{.Name}}(ctx context.Context, in *{{.Request}}, opts ...http.CallOption) (*{{.Reply}}, error) {
+func (c *{{$svcType}}HTTPClientImpl) {{.Name}}(ctx context.Context, in *{{.Request}}, opts ...option.Option) (*{{.Reply}}, error) {
 	var out {{.Reply}}
 	pattern := "{{.Path}}"
-	path := binding.EncodeURL(pattern, in, {{not .HasBody}})
-	opts = append(opts, http.Operation(Operation{{$svcType}}{{.OriginalName}}))
-	opts = append(opts, http.PathTemplate(pattern))
-	{{if .HasBody -}}
-	err := c.cc.Invoke(ctx, "{{.Method}}", path, in{{.Body}}, &out{{.ResponseBody}}, opts...)
-	{{else -}}
-	err := c.cc.Invoke(ctx, "{{.Method}}", path, nil, &out{{.ResponseBody}}, opts...)
-	{{end -}}
+  req, err := http.NewRequest("{{.Method}}", pattern, nil)
+  if err != nil {
+    return nil, err
+  }
+  err = binder.NewEncoder(req, opts...).Bind(in)
+  if err != nil {
+      return nil, err
+  }
+  req = req.WithContext(ctx)
+  res, err := c.cc.Do(req)
 	if err != nil {
 		return nil, err
 	}
+  defer res.Body.Close()
+  err = errors.ErrorMap[res.StatusCode]
+  if err != nil {
+    return nil, err
+  }
+  err = json.NewDecoder(res.Body).Decode(&out)
+  if err != nil {
+    return nil, err
+  }
 	return &out, nil
 }
 {{end}}

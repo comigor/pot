@@ -10,15 +10,22 @@ import (
 	"strings"
 )
 
-// parseTag extracts the field name and delimiter from the struct tag
-func parseTag(tag string) (string, string) {
-	parts := strings.SplitN(tag, structTagConfigDelimiter, 2)
-	fieldName := parts[0]
-	delimiter := structTagDefaultValueDelimiter
-	if len(parts) > 1 && strings.HasPrefix(parts[1], "del=") {
-		delimiter = strings.TrimPrefix(parts[1], "del=")
+// parseProtobufTag extracts the field name and delimiter from the struct tag
+func parseTag(tag string) string {
+	parts := strings.Split(tag, structTagConfigDelimiter)
+	fieldName := ""
+	for _, part := range parts {
+		if strings.HasPrefix(part, "name=") {
+			fieldName = strings.TrimPrefix(part, "name=")
+			continue
+		}
+		if strings.HasPrefix(part, "json=") {
+			fieldName = strings.TrimPrefix(part, "json=")
+			break
+		}
 	}
-	return fieldName, delimiter
+
+	return fieldName
 }
 
 // setFieldValue sets the struct field based on its type, parsing the query value accordingly
@@ -128,7 +135,7 @@ func parseToInterface(value string) (interface{}, error) {
 	return value, nil
 }
 
-func parseURL(pattern, path string) (map[string]string, error) {
+func decodeURL(pattern, path string) (map[string]string, error) {
 	splittedPattern := strings.Split(strings.Trim(pattern, "/"), "/")
 	splittedPath := strings.Split(strings.Trim(path, "/"), "/")
 
@@ -151,6 +158,43 @@ func parseURL(pattern, path string) (map[string]string, error) {
 	return pathParams, nil
 }
 
+func extractPathVars(path string) map[string]*string {
+	splittedPath := strings.Split(strings.Trim(path, "/"), "/")
+
+	pathVars := make(map[string]*string)
+	for i, pathPart := range splittedPath {
+		if !strings.HasPrefix(pathPart, "{") && strings.HasSuffix(pathPart, "}") {
+			continue
+		}
+
+		key := pathPart[1 : len(pathPart)-1]
+		pathVars[key] = &splittedPath[i]
+	}
+
+	return pathVars
+}
+
+func encodeURL(pattern string, vars map[string]*string) string {
+	splittedPattern := strings.Split(strings.Trim(pattern, "/"), "/")
+
+	for i, patternPart := range splittedPattern {
+		if !strings.HasPrefix(patternPart, "{") && strings.HasSuffix(patternPart, "}") {
+			continue
+		}
+
+		key := patternPart[1 : len(patternPart)-1]
+		val, ok := vars[key]
+		if !ok || val == nil {
+			splittedPattern[i] = ""
+			continue
+		}
+
+		splittedPattern[i] = *val
+	}
+
+	return strings.Join(splittedPattern, "/")
+}
+
 func hasBody(r *http.Request) bool {
 	if r.Body == nil {
 		return false
@@ -171,4 +215,8 @@ func hasBody(r *http.Request) bool {
 	}
 
 	return false
+}
+
+func shouldHaveBody(method string) bool {
+	return method == http.MethodPost || method == http.MethodPut || method == http.MethodPatch || method == http.MethodDelete
 }

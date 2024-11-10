@@ -5,12 +5,7 @@ import (
 	"reflect"
 )
 
-func (b *Binder) BindParams(pattern string, v interface{}) error {
-	params, err := parseURL(pattern, b.Request.URL.Path)
-	if err != nil {
-		return err
-	}
-
+func (d *Decoder) BindParams(v interface{}) error {
 	val := reflect.ValueOf(v)
 	if val.Kind() != reflect.Ptr || val.Elem().Kind() != reflect.Struct {
 		return fmt.Errorf("out must be a pointer to a struct")
@@ -20,23 +15,44 @@ func (b *Binder) BindParams(pattern string, v interface{}) error {
 	for i := 0; i < val.NumField(); i++ {
 		field := val.Type().Field(i)
 		fieldVal := val.Field(i)
-		tag := field.Tag.Get(structQueryTag)
+		tag := field.Tag.Get(structTag)
 		if tag == "" || !fieldVal.CanSet() {
 			continue
 		}
 
-		fieldName, delimiter := parseTag(tag)
-		queryValue, ok := params[fieldName]
-		if !ok {
-			continue
-		}
-		if queryValue == "" {
+		fieldName := parseTag(tag)
+		paramValue := d.Request.PathValue(fieldName)
+		if paramValue == "" {
 			continue
 		}
 
-		if err := setFieldValue(fieldVal, queryValue, delimiter); err != nil {
+		if err := setFieldValue(fieldVal, paramValue, structTagDefaultValueDelimiter); err != nil {
 			return fmt.Errorf("error setting field %s: %v", field.Name, err)
 		}
+	}
+
+	return nil
+}
+
+func (d *Encoder) BindParams(v interface{}) error {
+	val := reflect.ValueOf(v)
+	if val.Kind() != reflect.Ptr || val.Elem().Kind() != reflect.Struct {
+		return fmt.Errorf("out must be a pointer to a struct")
+	}
+	val = val.Elem()
+
+	for i := 0; i < val.NumField(); i++ {
+		field := val.Type().Field(i)
+		fieldVal := val.Field(i)
+		tag := field.Tag.Get(structTag)
+		if tag == "" || !fieldVal.CanSet() {
+			continue
+		}
+
+		fieldName := parseTag(tag)
+
+		val := fmt.Sprintf("%v", fieldVal.Interface())
+		d.Request.SetPathValue(fieldName, val)
 	}
 
 	return nil

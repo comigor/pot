@@ -5,13 +5,19 @@ import (
 	"fmt"
 )
 
-func (b *Binder) BindHeader() {
-	params := b.Request.Header
+func (d *Decoder) BindHeader() {
+	params := d.Request.Header
 
-	ctx := b.Request.Context()
+	ctx := d.Request.Context()
 	for key := range params {
 		ctx = context.WithValue(ctx, fmt.Sprintf("%s%s", contextHeaderPrefix, key), params.Get(key))
 	}
 
-	*b.Request = *b.Request.WithContext(ctx)
+	*d.Request = *d.Request.WithContext(ctx)
+}
+
+func (e *Encoder) BindHeader() {
+	for key, val := range e.Opts.Headers {
+		e.Request.Header.Set(key, fmt.Sprintf("%v", val))
+	}
 }

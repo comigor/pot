@@ -1,12 +1,10 @@
 package binder
 
 const (
-	MimeApplicationJSON = "application/json"
-
 	contextHeaderPrefix = "header__"
 
-	structQueryTag = "query"
+	structTag = "query"
 
-	structTagConfigDelimiter       = ";"
+	structTagConfigDelimiter       = ","
 	structTagDefaultValueDelimiter = ","
 )

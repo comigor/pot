@@ -49,7 +49,7 @@ var (
 )
 
 // Error map to associate status codes with error variables
-var httpErrorMap = map[int]error{
+var ErrorMap = map[int]error{
 	http.StatusBadRequest:                    ErrGeneralBadRequest,
 	http.StatusUnauthorized:                  ErrGeneralUnauthorized,
 	http.StatusPaymentRequired:               ErrGeneralPaymentRequired,
@@ -90,4 +90,91 @@ var httpErrorMap = map[int]error{
 	http.StatusLoopDetected:                  ErrGeneralLoopDetected,
 	http.StatusNotExtended:                   ErrGeneralNotExtended,
 	http.StatusNetworkAuthenticationRequired: ErrGeneralNetworkAuthenticationRequired,
+}
+
+func ParseErr(err error) (int, error) {
+	switch {
+	case errors.Is(err, ErrGeneralBadRequest):
+		return http.StatusBadRequest, err
+	case errors.Is(err, ErrGeneralUnauthorized):
+		return http.StatusUnauthorized, err
+	case errors.Is(err, ErrGeneralPaymentRequired):
+		return http.StatusPaymentRequired, err
+	case errors.Is(err, ErrGeneralForbidden):
+		return http.StatusForbidden, err
+	case errors.Is(err, ErrGeneralNotFound):
+		return http.StatusNotFound, err
+	case errors.Is(err, ErrGeneralMethodNotAllowed):
+		return http.StatusMethodNotAllowed, err
+	case errors.Is(err, ErrGeneralNotAcceptable):
+		return http.StatusNotAcceptable, err
+	case errors.Is(err, ErrGeneralProxyAuthRequired):
+		return http.StatusProxyAuthRequired, err
+	case errors.Is(err, ErrGeneralRequestTimeout):
+		return http.StatusRequestTimeout, err
+	case errors.Is(err, ErrGeneralConflict):
+		return http.StatusConflict, err
+	case errors.Is(err, ErrGeneralGone):
+		return http.StatusGone, err
+	case errors.Is(err, ErrGeneralLengthRequired):
+		return http.StatusLengthRequired, err
+	case errors.Is(err, ErrGeneralPreconditionFailed):
+		return http.StatusPreconditionFailed, err
+	case errors.Is(err, ErrGeneralRequestEntityTooLarge):
+		return http.StatusRequestEntityTooLarge, err
+	case errors.Is(err, ErrGeneralRequestURITooLong):
+		return http.StatusRequestURITooLong, err
+	case errors.Is(err, ErrGeneralUnsupportedMediaType):
+		return http.StatusUnsupportedMediaType, err
+	case errors.Is(err, ErrGeneralRequestedRangeNotSatisfiable):
+		return http.StatusRequestedRangeNotSatisfiable, err
+	case errors.Is(err, ErrGeneralExpectationFailed):
+		return http.StatusExpectationFailed, err
+	case errors.Is(err, ErrGeneralTeapot):
+		return http.StatusTeapot, err
+	case errors.Is(err, ErrGeneralMisdirectedRequest):
+		return http.StatusMisdirectedRequest, err
+	case errors.Is(err, ErrGeneralUnprocessableEntity):
+		return http.StatusUnprocessableEntity, err
+	case errors.Is(err, ErrGeneralLocked):
+		return http.StatusLocked, err
+	case errors.Is(err, ErrGeneralFailedDependency):
+		return http.StatusFailedDependency, err
+	case errors.Is(err, ErrGeneralTooEarly):
+		return http.StatusTooEarly, err
+	case errors.Is(err, ErrGeneralUpgradeRequired):
+		return http.StatusUpgradeRequired, err
+	case errors.Is(err, ErrGeneralPreconditionRequired):
+		return http.StatusPreconditionRequired, err
+	case errors.Is(err, ErrGeneralTooManyRequests):
+		return http.StatusTooManyRequests, err
+	case errors.Is(err, ErrGeneralRequestHeaderFieldsTooLarge):
+		return http.StatusRequestHeaderFieldsTooLarge, err
+	case errors.Is(err, ErrGeneralUnavailableForLegalReasons):
+		return http.StatusUnavailableForLegalReasons, err
+	case errors.Is(err, ErrGeneralInternalServerError):
+		return http.StatusInternalServerError, err
+	case errors.Is(err, ErrGeneralNotImplemented):
+		return http.StatusNotImplemented, err
+	case errors.Is(err, ErrGeneralBadGateway):
+		return http.StatusBadGateway, err
+	case errors.Is(err, ErrGeneralServiceUnavailable):
+		return http.StatusServiceUnavailable, err
+	case errors.Is(err, ErrGeneralGatewayTimeout):
+		return http.StatusGatewayTimeout, err
+	case errors.Is(err, ErrGeneralHTTPVersionNotSupported):
+		return http.StatusHTTPVersionNotSupported, err
+	case errors.Is(err, ErrGeneralVariantAlsoNegotiates):
+		return http.StatusVariantAlsoNegotiates, err
+	case errors.Is(err, ErrGeneralInsufficientStorage):
+		return http.StatusInsufficientStorage, err
+	case errors.Is(err, ErrGeneralLoopDetected):
+		return http.StatusLoopDetected, err
+	case errors.Is(err, ErrGeneralNotExtended):
+		return http.StatusNotExtended, err
+	case errors.Is(err, ErrGeneralNetworkAuthenticationRequired):
+		return http.StatusNetworkAuthenticationRequired, err
+	default:
+		return http.StatusInternalServerError, err
+	}
 }

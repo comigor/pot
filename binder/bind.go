@@ -1,21 +1,13 @@
 package binder
 
-import "net/http"
+func (d *Decoder) Bind(v interface{}) error {
+	hasBody := hasBody(d.Request)
 
-type Binder struct {
-	Request *http.Request
-
-	Pattern string
-}
-
-func (b *Binder) Bind(v interface{}) error {
-	hasBody := hasBody(b.Request)
-
-	b.BindHeader()
-	if err := b.BindParams(b.Pattern, v); err != nil {
+	d.BindHeader()
+	if err := d.BindParams(v); err != nil {
 		return err
 	}
-	if err := b.BindQuery(v); err != nil {
+	if err := d.BindQuery(v); err != nil {
 		return err
 	}
 
@@ -23,8 +15,28 @@ func (b *Binder) Bind(v interface{}) error {
 		return nil
 	}
 
-	if err := b.BindBody(v); err != nil {
+	if err := d.BindBody(v); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (e *Encoder) Bind(v interface{}) error {
+	shouldHaveBody := shouldHaveBody(e.Request.Method)
+
+	e.BindHeader()
+	if err := e.BindParams(v); err != nil {
+		return err
+	}
+	if !shouldHaveBody {
+		if err := e.BindQuery(v); err != nil {
+			return err
+		}
+	} else {
+		if err := e.BindBody(v); err != nil {
+			return err
+		}
 	}
 
 	return nil

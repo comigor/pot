@@ -16,9 +16,13 @@ import (
 )
 
 const (
-	contextPackage = protogen.GoImportPath("context")
-	netHttpPackage = protogen.GoImportPath("net/http")
-	binderPackage  = protogen.GoImportPath("github.com/afikrim/pot/binder")
+	contextPackage      = protogen.GoImportPath("context")
+	netHttpPackage      = protogen.GoImportPath("net/http")
+	jsonPackage         = protogen.GoImportPath("encoding/json")
+	errorsPackage       = protogen.GoImportPath("github.com/afikrim/pot/errors")
+	potPackage          = protogen.GoImportPath("github.com/afikrim/pot")
+	binderPackage       = protogen.GoImportPath("github.com/afikrim/pot/binder")
+	binderOptionPackage = protogen.GoImportPath("github.com/afikrim/pot/binder/option")
 )
 
 var methodSets = make(map[string]int)
@@ -58,10 +62,14 @@ func generateFileContent(gen *protogen.Plugin, file *protogen.File, g *protogen.
 	}
 
 	g.P("// This is a compile-time assertion to ensure that this generated file")
-	g.P("// is compatible with the kratos package it is being compiled against.")
+	g.P("// is compatible with the pot package it is being compiled against.")
 	g.P("var _ = new(", contextPackage.Ident("Context"), ")")
-	g.P("var _ = ", binderPackage.Ident("Binder"), "{}")
 	g.P("var _ = new(", netHttpPackage.Ident("Server"), ")")
+	g.P("var _ = new(", jsonPackage.Ident("Encoder"), ")")
+	g.P("var _ = ", errorsPackage.Ident("ErrGeneralBadRequest"))
+	g.P("var _ = new(", potPackage.Ident("ServiceDescriptor"), ")")
+	g.P("var _ = new(", binderPackage.Ident("Decoder"), ")")
+	g.P("var _ = new(", binderOptionPackage.Ident("Options"), ")")
 
 	for _, service := range file.Services {
 		genService(gen, file, g, service, omitempty, omitemptyPrefix)

@@ -1,6 +1,6 @@
 module github.com/afikrim/pot/example
 
-go 1.23.2
+go 1.23
 
 require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.23.0
