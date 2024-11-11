@@ -36,7 +36,11 @@ func (d *ResponseDecoder) BindBody(v interface{}) error {
 			return err
 		}
 
-		return protojson.Unmarshal(body, v.(protoreflect.ProtoMessage))
+		if protoMessage, ok := v.(protoreflect.ProtoMessage); ok {
+			return protojson.Unmarshal(body, protoMessage)
+		} else {
+			return json.Unmarshal(body, v)
+		}
 	default:
 		return fmt.Errorf("content-type is not supported, %w", errors.ErrGeneralUnsupportedMediaType)
 	}

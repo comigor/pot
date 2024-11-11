@@ -58,7 +58,7 @@ var _{{$svcType}}_HTTP_ServiceDesc = pot.ServiceDescriptor{
 
 type {{$svcType}}HTTPClient interface {
 {{- range .MethodSets}}
-	{{.Name}}(ctx context.Context, in *{{.Request}}, opts ...option.Option) (*{{.Reply}}, error)
+	{{.Name}}(ctx context.Context, in *{{.Request}}, opts ...option.BinderOption) (*{{.Reply}}, error)
 {{- end}}
 }
 

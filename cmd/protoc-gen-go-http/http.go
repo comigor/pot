@@ -67,7 +67,7 @@ func generateFileContent(gen *protogen.Plugin, file *protogen.File, g *protogen.
 	g.P("var _ = ", errorsPackage.Ident("ErrGeneralBadRequest"))
 	g.P("var _ = new(", potPackage.Ident("ServiceDescriptor"), ")")
 	g.P("var _ = new(", binderPackage.Ident("RequestDecoder"), ")")
-	g.P("var _ = new(", optionPackage.Ident("Options"), ")")
+	g.P("var _ = new(", optionPackage.Ident("BinderOptions"), ")")
 
 	for _, service := range file.Services {
 		genService(gen, file, g, service, omitempty, omitemptyPrefix)
