@@ -6,6 +6,7 @@ type Options struct {
 	Headers     map[string]any
 	ContentType ContentType
 	Timeout     time.Duration
+	Operation   string
 }
 
 type Option func(*Options)
@@ -45,5 +46,11 @@ func WithContentType(contentType ContentType) Option {
 func WithTimeout(timeout time.Duration) Option {
 	return func(o *Options) {
 		o.Timeout = timeout
+	}
+}
+
+func WithOperation(operation string) Option {
+	return func(o *Options) {
+		o.Operation = operation
 	}
 }

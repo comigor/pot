@@ -5,47 +5,80 @@ import (
 	"net/http"
 )
 
+var _ error = &Error{}
+
+type Error struct {
+	Data            interface{} `json:"data"`
+	Message         string      `json:"message"`
+	InternalMessage string      `json:"-"`
+}
+
+// Error implements error.
+func (e *Error) Error() string {
+	if e.InternalMessage == "" {
+		return e.Message
+	}
+
+	return e.Message + ": " + e.InternalMessage
+}
+
+func (e *Error) WithData(data interface{}) *Error {
+	e.Data = data
+	return e
+}
+
+func (e *Error) WithInternalMessage(internalMessage string) *Error {
+	e.InternalMessage = internalMessage
+	return e
+}
+
+func New(message string) *Error {
+	return &Error{
+		Message: message,
+	}
+}
+
 var (
-	ErrGeneralBadRequest                    = errors.New("general error, Bad Request")
-	ErrGeneralUnauthorized                  = errors.New("general error, Unauthorized")
-	ErrGeneralPaymentRequired               = errors.New("general error, Payment Required")
-	ErrGeneralForbidden                     = errors.New("general error, Forbidden")
-	ErrGeneralNotFound                      = errors.New("general error, Not Found")
-	ErrGeneralMethodNotAllowed              = errors.New("general error, Method Not Allowed")
-	ErrGeneralNotAcceptable                 = errors.New("general error, Not Acceptable")
-	ErrGeneralProxyAuthRequired             = errors.New("general error, Proxy Authentication Required")
-	ErrGeneralRequestTimeout                = errors.New("general error, Request Timeout")
-	ErrGeneralConflict                      = errors.New("general error, Conflict")
-	ErrGeneralGone                          = errors.New("general error, Gone")
-	ErrGeneralLengthRequired                = errors.New("general error, Length Required")
-	ErrGeneralPreconditionFailed            = errors.New("general error, Precondition Failed")
-	ErrGeneralRequestEntityTooLarge         = errors.New("general error, Request Entity Too Large")
-	ErrGeneralRequestURITooLong             = errors.New("general error, Request URI Too Long")
-	ErrGeneralUnsupportedMediaType          = errors.New("general error, Unsupported Media Type")
-	ErrGeneralRequestedRangeNotSatisfiable  = errors.New("general error, Requested Range Not Satisfiable")
-	ErrGeneralExpectationFailed             = errors.New("general error, Expectation Failed")
-	ErrGeneralTeapot                        = errors.New("general error, I'm a teapot")
-	ErrGeneralMisdirectedRequest            = errors.New("general error, Misdirected Request")
-	ErrGeneralUnprocessableEntity           = errors.New("general error, Unprocessable Entity")
-	ErrGeneralLocked                        = errors.New("general error, Locked")
-	ErrGeneralFailedDependency              = errors.New("general error, Failed Dependency")
-	ErrGeneralTooEarly                      = errors.New("general error, Too Early")
-	ErrGeneralUpgradeRequired               = errors.New("general error, Upgrade Required")
-	ErrGeneralPreconditionRequired          = errors.New("general error, Precondition Required")
-	ErrGeneralTooManyRequests               = errors.New("general error, Too Many Requests")
-	ErrGeneralRequestHeaderFieldsTooLarge   = errors.New("general error, Request Header Fields Too Large")
-	ErrGeneralUnavailableForLegalReasons    = errors.New("general error, Unavailable For Legal Reasons")
-	ErrGeneralInternalServerError           = errors.New("general error, Internal Server Error")
-	ErrGeneralNotImplemented                = errors.New("general error, Not Implemented")
-	ErrGeneralBadGateway                    = errors.New("general error, Bad Gateway")
-	ErrGeneralServiceUnavailable            = errors.New("general error, Service Unavailable")
-	ErrGeneralGatewayTimeout                = errors.New("general error, Gateway Timeout")
-	ErrGeneralHTTPVersionNotSupported       = errors.New("general error, HTTP Version Not Supported")
-	ErrGeneralVariantAlsoNegotiates         = errors.New("general error, Variant Also Negotiates")
-	ErrGeneralInsufficientStorage           = errors.New("general error, Insufficient Storage")
-	ErrGeneralLoopDetected                  = errors.New("general error, Loop Detected")
-	ErrGeneralNotExtended                   = errors.New("general error, Not Extended")
-	ErrGeneralNetworkAuthenticationRequired = errors.New("general error, Network Authentication Required")
+	ErrGeneralBadRequest                    = New("general error, Bad Request")
+	ErrGeneralUnauthorized                  = New("general error, Unauthorized")
+	ErrGeneralPaymentRequired               = New("general error, Payment Required")
+	ErrGeneralForbidden                     = New("general error, Forbidden")
+	ErrGeneralNotFound                      = New("general error, Not Found")
+	ErrGeneralMethodNotAllowed              = New("general error, Method Not Allowed")
+	ErrGeneralNotAcceptable                 = New("general error, Not Acceptable")
+	ErrGeneralProxyAuthRequired             = New("general error, Proxy Authentication Required")
+	ErrGeneralRequestTimeout                = New("general error, Request Timeout")
+	ErrGeneralConflict                      = New("general error, Conflict")
+	ErrGeneralGone                          = New("general error, Gone")
+	ErrGeneralLengthRequired                = New("general error, Length Required")
+	ErrGeneralPreconditionFailed            = New("general error, Precondition Failed")
+	ErrGeneralRequestEntityTooLarge         = New("general error, Request Entity Too Large")
+	ErrGeneralRequestURITooLong             = New("general error, Request URI Too Long")
+	ErrGeneralUnsupportedMediaType          = New("general error, Unsupported Media Type")
+	ErrGeneralRequestedRangeNotSatisfiable  = New("general error, Requested Range Not Satisfiable")
+	ErrGeneralExpectationFailed             = New("general error, Expectation Failed")
+	ErrGeneralTeapot                        = New("general error, I'm a teapot")
+	ErrGeneralMisdirectedRequest            = New("general error, Misdirected Request")
+	ErrGeneralUnprocessableEntity           = New("general error, Unprocessable Entity")
+	ErrGeneralLocked                        = New("general error, Locked")
+	ErrGeneralFailedDependency              = New("general error, Failed Dependency")
+	ErrGeneralTooEarly                      = New("general error, Too Early")
+	ErrGeneralUpgradeRequired               = New("general error, Upgrade Required")
+	ErrGeneralPreconditionRequired          = New("general error, Precondition Required")
+	ErrGeneralTooManyRequests               = New("general error, Too Many Requests")
+	ErrGeneralRequestHeaderFieldsTooLarge   = New("general error, Request Header Fields Too Large")
+	ErrGeneralUnavailableForLegalReasons    = New("general error, Unavailable For Legal Reasons")
+	ErrGeneralInternalServerError           = New("general error, Internal Server Error")
+	ErrGeneralNotImplemented                = New("general error, Not Implemented")
+	ErrGeneralBadGateway                    = New("general error, Bad Gateway")
+	ErrGeneralServiceUnavailable            = New("general error, Service Unavailable")
+	ErrGeneralGatewayTimeout                = New("general error, Gateway Timeout")
+	ErrGeneralHTTPVersionNotSupported       = New("general error, HTTP Version Not Supported")
+	ErrGeneralVariantAlsoNegotiates         = New("general error, Variant Also Negotiates")
+	ErrGeneralInsufficientStorage           = New("general error, Insufficient Storage")
+	ErrGeneralLoopDetected                  = New("general error, Loop Detected")
+	ErrGeneralNotExtended                   = New("general error, Not Extended")
+	ErrGeneralNetworkAuthenticationRequired = New("general error, Network Authentication Required")
 )
 
 // Error map to associate status codes with error variables

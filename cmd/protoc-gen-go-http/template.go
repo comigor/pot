@@ -30,8 +30,6 @@ type methodDescriptor struct {
 	// http_rule
 	Path         string
 	Method       string
-	HasVars      bool
-	HasBody      bool
 	Body         string
 	ResponseBody string
 }

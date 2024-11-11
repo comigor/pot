@@ -17,7 +17,7 @@ Traditional setups often involve creating a gRPC handler and then wrapping it wi
 To install pot, you can simply use go install:
 
 ```sh
-go install github.com/afikrim/pot@latest
+go install github.com/afikrim/pot/cmd/protoc-gen-go-http@latest
 ```
 
 ### Usage
@@ -25,7 +25,7 @@ go install github.com/afikrim/pot@latest
 To generate HTTP handlers from your Protobuf files, run the following command:
 
 ```sh
-protoc --plugin=protoc-gen-pot --pot_out=. --proto_path=PATH_TO_PROTO_FILE your_service.proto
+protoc --plugin=protoc-gen-go-http --go-http_out=. --proto_path=PATH_TO_PROTO_FILE your_service.proto
 ```
 
 Replace PATH_TO_PROTO_FILE with the path to your .proto files, and your_service.proto with the specific Protobuf file to generate handlers for.
@@ -35,7 +35,7 @@ Replace PATH_TO_PROTO_FILE with the path to your .proto files, and your_service.
 Given a Protobuf file example.proto, use pot as follows:
 
 ```sh
-protoc --plugin=protoc-gen-pot --pot_out=. --proto_path=proto example.proto
+protoc --plugin=protoc-gen-go-http --go-http_out=. --proto_path=proto example.proto
 ```
 
 This generates an HTTP handler based on the service definition in example.proto.

@@ -5,10 +5,6 @@ const (
 {{- range .MethodSets}}
   Operation_{{$svcType}}_{{.OriginalName}} = "/{{$svcName}}/{{.OriginalName}}"
 {{- end}}
-
-{{- range .MethodSets}}
-  {{$svcType}}_{{.OriginalName}}_FullPathName = "{{.Method}} {{.Path}}"
-{{- end}}
 )
 
 type {{$svcType}}HTTPServer interface {
@@ -70,14 +66,13 @@ func New{{$svcType}}HTTPClient (client *http.Client) {{$svcType}}HTTPClient {
 
 {{range .MethodSets}}
 func (c *{{$svcType}}HTTPClientImpl) {{.Name}}(ctx context.Context, in *{{.Request}}, opts ...option.Option) (*{{.Reply}}, error) {
-	var out {{.Reply}}
+	out := new({{.Reply}})
 	pattern := "{{.Path}}"
   req, err := http.NewRequest("{{.Method}}", pattern, nil)
   if err != nil {
     return nil, err
   }
-  err = binder.NewEncoder(req, opts...).Bind(in)
-  if err != nil {
+  if err = binder.NewRequestEncoder(req, opts...).Bind(in); err != nil {
       return nil, err
   }
   req = req.WithContext(ctx)
@@ -86,14 +81,17 @@ func (c *{{$svcType}}HTTPClientImpl) {{.Name}}(ctx context.Context, in *{{.Reque
 		return nil, err
 	}
   defer res.Body.Close()
-  err = errors.ErrorMap[res.StatusCode]
-  if err != nil {
+	dec := &binder.ResponseDecoder{Response: res}
+	if err := errors.ErrorMap[res.StatusCode]; err != nil {
+		customErr := new(errors.Error)
+    if err := dec.BindBody(customErr); err != nil {
+      return nil, err
+    }
+		return nil, customErr
+	}
+	if err := dec.BindBody(out); err != nil {
     return nil, err
   }
-  err = json.NewDecoder(res.Body).Decode(&out)
-  if err != nil {
-    return nil, err
-  }
-	return &out, nil
+	return out, nil
 }
 {{end}}

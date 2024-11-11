@@ -5,7 +5,7 @@ import (
 	"reflect"
 )
 
-func (d *Decoder) BindQuery(v interface{}) error {
+func (d *RequestDecoder) BindQuery(v interface{}) error {
 	params := d.Request.URL.Query()
 
 	val := reflect.ValueOf(v)
@@ -36,7 +36,7 @@ func (d *Decoder) BindQuery(v interface{}) error {
 	return nil
 }
 
-func (d *Encoder) BindQuery(v interface{}) error {
+func (d *RequestEncoder) BindQuery(v interface{}) error {
 	val := reflect.ValueOf(v)
 	if val.Kind() != reflect.Ptr || val.Elem().Kind() != reflect.Struct {
 		return fmt.Errorf("out must be a pointer to a struct")

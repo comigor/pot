@@ -3,11 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"os"
-	"regexp"
 	"strings"
-
-	"google.golang.org/protobuf/reflect/protoreflect"
 
 	"google.golang.org/genproto/googleapis/api/annotations"
 	"google.golang.org/protobuf/compiler/protogen"
@@ -18,11 +14,12 @@ import (
 const (
 	contextPackage      = protogen.GoImportPath("context")
 	netHttpPackage      = protogen.GoImportPath("net/http")
-	jsonPackage         = protogen.GoImportPath("encoding/json")
 	errorsPackage       = protogen.GoImportPath("github.com/afikrim/pot/errors")
 	potPackage          = protogen.GoImportPath("github.com/afikrim/pot")
 	binderPackage       = protogen.GoImportPath("github.com/afikrim/pot/binder")
 	binderOptionPackage = protogen.GoImportPath("github.com/afikrim/pot/binder/option")
+
+	deprecationComment = "// Deprecated: Do not use."
 )
 
 var methodSets = make(map[string]int)
@@ -65,7 +62,6 @@ func generateFileContent(gen *protogen.Plugin, file *protogen.File, g *protogen.
 	g.P("// is compatible with the pot package it is being compiled against.")
 	g.P("var _ = new(", contextPackage.Ident("Context"), ")")
 	g.P("var _ = new(", netHttpPackage.Ident("Server"), ")")
-	g.P("var _ = new(", jsonPackage.Ident("Encoder"), ")")
 	g.P("var _ = ", errorsPackage.Ident("ErrGeneralBadRequest"))
 	g.P("var _ = new(", potPackage.Ident("ServiceDescriptor"), ")")
 	g.P("var _ = new(", binderPackage.Ident("Decoder"), ")")
@@ -135,10 +131,8 @@ func hasHTTPRule(services []*protogen.Service) bool {
 
 func buildHTTPRule(g *protogen.GeneratedFile, service *protogen.Service, m *protogen.Method, rule *annotations.HttpRule, omitemptyPrefix string) *methodDescriptor {
 	var (
-		path         string
-		method       string
-		body         string
-		responseBody string
+		path   string
+		method string
 	)
 
 	switch pattern := rule.Pattern.(type) {
@@ -165,70 +159,13 @@ func buildHTTPRule(g *protogen.GeneratedFile, service *protogen.Service, m *prot
 		method = http.MethodPost
 	}
 
-	body = rule.Body
-	responseBody = rule.ResponseBody
 	methodDesc := buildMethodDesc(g, m, method, path)
-	if method == http.MethodGet || method == http.MethodDelete {
-		if body != "" {
-			_, _ = fmt.Fprintf(os.Stderr, "\u001B[31mWARN\u001B[m: %s %s body should not be declared.\n", method, path)
-		}
-	} else {
-		if body == "" {
-			_, _ = fmt.Fprintf(os.Stderr, "\u001B[31mWARN\u001B[m: %s %s does not declare a body.\n", method, path)
-		}
-	}
-
-	if body == "*" {
-		methodDesc.HasBody = true
-		methodDesc.Body = ""
-	} else if body != "" {
-		methodDesc.HasBody = true
-		methodDesc.Body = "." + camelCaseVars(body)
-	} else {
-		methodDesc.HasBody = false
-	}
-
-	if responseBody == "*" {
-		methodDesc.ResponseBody = ""
-	} else if responseBody != "" {
-		methodDesc.ResponseBody = "." + camelCaseVars(responseBody)
-	}
 
 	return methodDesc
 }
 
 func buildMethodDesc(g *protogen.GeneratedFile, m *protogen.Method, method, path string) *methodDescriptor {
 	defer func() { methodSets[m.GoName]++ }()
-
-	vars := buildPathVars(path)
-
-	for v, s := range vars {
-		fields := m.Input.Desc.Fields()
-
-		if s != nil {
-			path = replacePath(v, *s, path)
-		}
-		for _, field := range strings.Split(v, ".") {
-			if strings.TrimSpace(field) == "" {
-				continue
-			}
-			if strings.Contains(field, ":") {
-				field = strings.Split(field, ":")[0]
-			}
-			fd := fields.ByName(protoreflect.Name(field))
-			if fd == nil {
-				fmt.Fprintf(os.Stderr, "\u001B[31mERROR\u001B[m: The corresponding field '%s' declaration in message could not be found in '%s'\n", v, path)
-				os.Exit(2)
-			}
-			if fd.IsMap() {
-				fmt.Fprintf(os.Stderr, "\u001B[31mWARN\u001B[m: The field in path:'%s' shouldn't be a map.\n", v)
-			} else if fd.IsList() {
-				fmt.Fprintf(os.Stderr, "\u001B[31mWARN\u001B[m: The field in path:'%s' shouldn't be a list.\n", v)
-			} else if fd.Kind() == protoreflect.MessageKind || fd.Kind() == protoreflect.GroupKind {
-				fields = fd.Message().Fields()
-			}
-		}
-	}
 
 	comment := m.Comments.Leading.String() + m.Comments.Trailing.String()
 	if comment != "" {
@@ -244,108 +181,7 @@ func buildMethodDesc(g *protogen.GeneratedFile, m *protogen.Method, method, path
 		Comment:      comment,
 		Path:         path,
 		Method:       method,
-		HasVars:      len(vars) > 0,
 	}
-}
-
-func buildPathVars(path string) (res map[string]*string) {
-	if strings.HasSuffix(path, "/") {
-		fmt.Fprintf(os.Stderr, "\u001B[31mWARN\u001B[m: Path %s should not end with \"/\" \n", path)
-	}
-
-	pattern := regexp.MustCompile(`(?i){([a-z.0-9_\s]*)=?([^{}]*)}`)
-	matches := pattern.FindAllStringSubmatch(path, -1)
-
-	res = make(map[string]*string, len(matches))
-	for _, m := range matches {
-		name := strings.TrimSpace(m[1])
-		if len(name) > 1 && len(m[2]) > 0 {
-			res[name] = &m[2]
-		} else {
-			res[name] = nil
-		}
-	}
-
-	return
-}
-
-func replacePath(name string, value string, path string) string {
-	pattern := regexp.MustCompile(fmt.Sprintf(`(?i){([\s]*%s\b[\s]*)=?([^{}]*)}`, name))
-	idx := pattern.FindStringIndex(path)
-	if len(idx) > 0 {
-		path = fmt.Sprintf("%s{%s:%s}%s",
-			path[:idx[0]], // The start of the match
-			name,
-			strings.ReplaceAll(value, "*", ".*"),
-			path[idx[1]:],
-		)
-	}
-
-	return path
-}
-
-func camelCaseVars(s string) string {
-	subs := strings.Split(s, ".")
-	vars := make([]string, 0, len(subs))
-	for _, sub := range subs {
-		vars = append(vars, camelCase(sub))
-	}
-
-	return strings.Join(vars, ".")
-}
-
-func camelCase(s string) string {
-	if s == "" {
-		return ""
-	}
-
-	t := make([]byte, 0, 32)
-	i := 0
-	if s[0] == '_' {
-		// Need a capital letter; drop the '_'.
-		t = append(t, 'X')
-		i++
-	}
-
-	// Invariant: if the next letter is lower case, it must be converted
-	// to upper case.
-	// That is, we process a word at a time, where words are marked by _ or
-	// upper case letter. Digits are treated as words.
-	for ; i < len(s); i++ {
-		c := s[i]
-		if c == '_' && i+1 < len(s) && isASCIILower(s[i+1]) {
-			continue // Skip the underscore in s.
-		}
-		if isASCIIDigit(c) {
-			t = append(t, c)
-			continue
-		}
-
-		// Assume we have a letter now - if not, it's a bogus identifier.
-		// The next word is a sequence of characters that must start upper case.
-		if isASCIILower(c) {
-			c ^= ' ' // Make it a capital letter.
-		}
-		t = append(t, c) // Guaranteed not lower case.
-
-		// Accept lower case sequence that follows.
-		for i+1 < len(s) && isASCIILower(s[i+1]) {
-			i++
-			t = append(t, s[i])
-		}
-	}
-
-	return string(t)
-}
-
-// Is c an ASCII lower-case letter?
-func isASCIILower(c byte) bool {
-	return 'a' <= c && c <= 'z'
-}
-
-// Is c an ASCII digit?
-func isASCIIDigit(c byte) bool {
-	return '0' <= c && c <= '9'
 }
 
 func protocVersion(gen *protogen.Plugin) string {
@@ -361,5 +197,3 @@ func protocVersion(gen *protogen.Plugin) string {
 
 	return fmt.Sprintf("v%d.%d.%d%s", v.GetMajor(), v.GetMinor(), v.GetPatch(), suffix)
 }
-
-const deprecationComment = "// Deprecated: Do not use."

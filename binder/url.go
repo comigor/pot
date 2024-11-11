@@ -5,7 +5,7 @@ import (
 	"reflect"
 )
 
-func (d *Decoder) BindParams(v interface{}) error {
+func (d *RequestDecoder) BindParams(v interface{}) error {
 	val := reflect.ValueOf(v)
 	if val.Kind() != reflect.Ptr || val.Elem().Kind() != reflect.Struct {
 		return fmt.Errorf("out must be a pointer to a struct")
@@ -34,7 +34,7 @@ func (d *Decoder) BindParams(v interface{}) error {
 	return nil
 }
 
-func (d *Encoder) BindParams(v interface{}) error {
+func (d *RequestEncoder) BindParams(v interface{}) error {
 	val := reflect.ValueOf(v)
 	if val.Kind() != reflect.Ptr || val.Elem().Kind() != reflect.Struct {
 		return fmt.Errorf("out must be a pointer to a struct")

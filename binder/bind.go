@@ -1,6 +1,6 @@
 package binder
 
-func (d *Decoder) Bind(v interface{}) error {
+func (d *RequestDecoder) Bind(v interface{}) error {
 	hasBody := hasBody(d.Request)
 
 	d.BindHeader()
@@ -22,7 +22,7 @@ func (d *Decoder) Bind(v interface{}) error {
 	return nil
 }
 
-func (e *Encoder) Bind(v interface{}) error {
+func (e *RequestEncoder) Bind(v interface{}) error {
 	shouldHaveBody := shouldHaveBody(e.Request.Method)
 
 	e.BindHeader()

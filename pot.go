@@ -3,12 +3,13 @@ package pot
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 	"reflect"
 
 	"github.com/afikrim/pot/binder"
-	"github.com/afikrim/pot/errors"
+	potErrors "github.com/afikrim/pot/errors"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -34,7 +35,7 @@ type (
 )
 
 func NewDecoderFunc(r *http.Request) DecoderFunc {
-	dec := binder.Decoder{Request: r}
+	dec := binder.RequestDecoder{Request: r}
 
 	return func(req interface{}) error {
 		return dec.Bind(req)
@@ -49,15 +50,25 @@ func httpHandlerWrapper(impl interface{}, handler MethodHandlerFunc) http.Handle
 	return func(rw http.ResponseWriter, r *http.Request) {
 		decoder := NewDecoderFunc(r)
 		out, err := handler(r.Context(), impl, decoder, nil)
-		if err != nil {
-			status, err := errors.ParseErr(err)
-			rw.WriteHeader(status)
-			json.NewEncoder(rw).Encode(ErrResp{Message: err.Error()})
+		if err == nil {
+			encoder := &binder.ResponseEncoder{ResponseWriter: rw}
+			err = encoder.BindBody(out)
+			if err == nil {
+				return
+			}
+		}
+
+		statusCode, err := potErrors.ParseErr(err)
+
+		potErr := &potErrors.Error{}
+		if errors.As(err, &potErr) {
+			rw.WriteHeader(statusCode)
+			json.NewEncoder(rw).Encode(err)
 			return
 		}
 
-		rw.WriteHeader(http.StatusOK)
-		json.NewEncoder(rw).Encode(out)
+		rw.WriteHeader(statusCode)
+		json.NewEncoder(rw).Encode(ErrResp{Message: err.Error()})
 	}
 }
 
