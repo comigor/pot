@@ -15,7 +15,7 @@ import (
 
 type (
 	HandlerFunc       func(ctx context.Context, req interface{}) (interface{}, error)
-	MiddlewareFunc    func(HandlerFunc) (interface{}, error)
+	MiddlewareFunc    func(HandlerFunc) HandlerFunc
 	DecoderFunc       func(req interface{}) error
 	MethodHandlerFunc func(ctx context.Context, srv interface{}, dec DecoderFunc, middleware MiddlewareFunc) (interface{}, error)
 
