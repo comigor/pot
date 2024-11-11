@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+package blog;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "github.com/afikrim/pot/example/handler/pb/blog";
+
+message CreateBlogRequest {
+  string author_id = 1;
+  string title = 2;
+  string content = 3;
+}
+
+message CreateBlogResponse {
+  string id = 1;
+  string author_id = 2;
+  string title = 3;
+  string content = 4;
+}
+
+message ReadBlogRequest {
+  string id = 1;
+}
+
+message ReadBlogResponse {
+  string id = 1;
+  string author_id = 2;
+  string title = 3;
+  string content = 4;
+}
+
+message UpdateBlogRequest {
+  string id = 1;
+  string author_id = 2;
+  string title = 3;
+  string content = 4;
+}
+
+message UpdateBlogResponse {
+  string id = 1;
+  string author_id = 2;
+  string title = 3;
+  string content = 4;
+}
+
+message DeleteBlogRequest {
+  string id = 1;
+}
+
+service BlogService {
+  rpc CreateBlog(CreateBlogRequest) returns (CreateBlogResponse) {
+    option (google.api.http) = {
+      post: "/v1/blog"
+      body: "*"
+    };
+  }
+
+  rpc ReadBlog(ReadBlogRequest) returns (ReadBlogResponse) {
+    option (google.api.http) = {
+      get: "/v1/blog/{id}"
+    };
+  }
+
+  rpc UpdateBlog(UpdateBlogRequest) returns (UpdateBlogResponse) {
+    option (google.api.http) = {
+      put: "/v1/blog/{id}"
+      body: "*"
+    };
+  }
+
+  rpc DeleteBlog(DeleteBlogRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/blog/{id}"
+    };
+  }
+}
