@@ -22,6 +22,8 @@ func (d *RequestDecoder) BindBody(v interface{}) error {
 		}
 
 		return protojson.Unmarshal(body, v.(protoreflect.ProtoMessage))
+	case "":
+		return nil
 	default:
 		return fmt.Errorf("content-type is not supported, %w", errors.ErrGeneralUnsupportedMediaType)
 	}
@@ -41,6 +43,8 @@ func (d *ResponseDecoder) BindBody(v interface{}) error {
 		} else {
 			return json.Unmarshal(body, v)
 		}
+	case "":
+		return nil
 	default:
 		return fmt.Errorf("content-type is not supported, %w", errors.ErrGeneralUnsupportedMediaType)
 	}
