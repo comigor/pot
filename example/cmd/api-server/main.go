@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/afikrim/pot/example/handler"
 	"github.com/afikrim/pot/example/handler/pb/blog"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo"
 )
 
 func main() {
@@ -12,7 +12,7 @@ func main() {
 
 	// native http server
 	// mux := http.NewServeMux()
-	// mux.Handle("v1/*{blog_handler}", httpHandler)
+	// mux.Handle("/", httpHandler)
 	// http.ListenAndServe(":8080", mux)
 
 	// using with echo

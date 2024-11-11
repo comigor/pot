@@ -3,9 +3,9 @@ module github.com/afikrim/pot/example
 go 1.23
 
 require (
-	github.com/afikrim/pot v0.0.6-0.20241111085920-89b27266aba9
+	github.com/afikrim/pot v0.0.7-0.20241111104439-4a6a1b7c28a2
 	github.com/google/uuid v1.6.0
-	github.com/labstack/echo/v4 v4.12.0
+	github.com/labstack/echo v3.3.10+incompatible
 	google.golang.org/genproto/googleapis/api v0.0.0-20241021214115-324edc3d5d38
 	google.golang.org/protobuf v1.35.1
 )
