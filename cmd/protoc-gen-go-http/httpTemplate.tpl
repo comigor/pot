@@ -80,7 +80,7 @@ func New{{$svcType}}HTTPClient (opts ...option.ClientOption) {{$svcType}}HTTPCli
 {{range .MethodSets}}
 func (c *{{$svcType}}HTTPClientImpl) {{.Name}}(ctx context.Context, in *{{.Request}}, opts ...option.BinderOption) (*{{.Reply}}, error) {
 	out := new({{.Reply}})
-  url := fmt.Sprintf("%s/%s", c.baseUrl, {{$svcType}}_{{.OriginalName}}_Path)
+  url := fmt.Sprintf("%s%s", c.baseUrl, {{$svcType}}_{{.OriginalName}}_Path)
   req, err := http.NewRequest({{$svcType}}_{{.OriginalName}}_Method, url, nil)
   if err != nil {
     return nil, err
