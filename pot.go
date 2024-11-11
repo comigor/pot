@@ -30,7 +30,7 @@ type (
 	ServiceDescriptor struct {
 		ServiceName string
 		HandlerType interface{}
-		Method      []MethodDescriptor
+		Methods     []MethodDescriptor
 	}
 )
 
@@ -82,7 +82,7 @@ func RegisterService(desc *ServiceDescriptor, impl interface{}) http.Handler {
 	}
 
 	router := chi.NewRouter()
-	for _, method := range desc.Method {
+	for _, method := range desc.Methods {
 		switch method.HttpMethod {
 		case http.MethodGet:
 			router.Get(method.HttpPath, httpHandlerWrapper(impl, method.Handler))

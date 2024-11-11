@@ -17,7 +17,7 @@ type {{$svcType}}HTTPServer interface {
 }
 
 func Register{{$svcType}}HTTPServer(srv {{$svcType}}HTTPServer) http.Handler {
-  return pot.RegisterService(_{{$svcType}}_HTTP_ServiceDesc, srv)
+  return pot.RegisterService(&_{{$svcType}}_HTTP_ServiceDesc, srv)
 }
 
 {{range .Methods}}
@@ -36,9 +36,9 @@ func _{{$svcType}}_{{.Name}}{{.Num}}_HTTP_Handler(ctx context.Context, srv inter
 }
 {{end}}
 
-var _{{$svcType}}_HTTP_ServiceDesc = pot.ServiceDesc{
+var _{{$svcType}}_HTTP_ServiceDesc = pot.ServiceDescriptor{
   ServiceName: "{{$svcName}}",
-  Methods: []pot.MethodDesc{
+  Methods: []pot.MethodDescriptor{
     {{- range .Methods}}
     {
       MethodName: "{{.Name}}",
