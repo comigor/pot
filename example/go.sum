@@ -1,5 +1,9 @@
 github.com/afikrim/pot v0.0.4 h1:DDOcypCQba0n1oTb2hXize3JLjWylI0f83ET0A8r4bw=
 github.com/afikrim/pot v0.0.4/go.mod h1:8YNO66eQnpSvptQv81z7DWSrRy7cKr0n+cdwZluVtok=
+github.com/afikrim/pot v0.0.5 h1:Mxy5sYHCcQ1mFgQTiZVtHpC5NbyYXflLgX7+vX455pw=
+github.com/afikrim/pot v0.0.5/go.mod h1:8YNO66eQnpSvptQv81z7DWSrRy7cKr0n+cdwZluVtok=
+github.com/afikrim/pot v0.0.6-0.20241111085920-89b27266aba9 h1:mgPO6cyVR7N8Z6sA/fdCYr3vDvdHLDqMzIOXL+js+vI=
+github.com/afikrim/pot v0.0.6-0.20241111085920-89b27266aba9/go.mod h1:8YNO66eQnpSvptQv81z7DWSrRy7cKr0n+cdwZluVtok=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/go-chi/chi/v5 v5.1.0 h1:acVI1TYaD+hhedDJ3r54HyA6sExp3HfXq7QWEEY/xMw=
