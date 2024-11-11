@@ -38,6 +38,7 @@ func _{{$svcType}}_{{.Name}}{{.Num}}_HTTP_Handler(ctx context.Context, srv inter
 
 var _{{$svcType}}_HTTP_ServiceDesc = pot.ServiceDescriptor{
   ServiceName: "{{$svcName}}",
+  HandlerType: (*{{$svcType}}HTTPServer)(nil),
   Methods: []pot.MethodDescriptor{
     {{- range .Methods}}
     {
