@@ -40,4 +40,8 @@ func (e *RequestEncoder) BindHeader() {
 	if e.Opts.Operation != "" {
 		e.Request.Header.Set("X-Operation", e.Opts.Operation)
 	}
+
+	if e.Opts.RequestID != "" {
+		e.Request.Header.Set("X-Request-ID", e.Opts.RequestID)
+	}
 }

@@ -3,11 +3,11 @@ package binder
 import (
 	"net/http"
 
-	"github.com/afikrim/pot/binder/option"
+	"github.com/afikrim/pot/option"
 )
 
 type RequestEncoder struct {
-	Opts    *option.Options
+	Opts    *option.BinderOptions
 	Request *http.Request
 }
 
@@ -15,9 +15,9 @@ type ResponseEncoder struct {
 	ResponseWriter http.ResponseWriter
 }
 
-func NewRequestEncoder(r *http.Request, opts ...option.Option) *RequestEncoder {
+func NewRequestEncoder(r *http.Request, opts ...option.BinderOption) *RequestEncoder {
 	return &RequestEncoder{
-		Opts:    option.New(opts...),
+		Opts:    option.NewBinderOptions(opts...),
 		Request: r,
 	}
 }

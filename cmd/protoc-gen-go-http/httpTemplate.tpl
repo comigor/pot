@@ -5,6 +5,11 @@ const (
 {{- range .MethodSets}}
   Operation_{{$svcType}}_{{.OriginalName}} = "/{{$svcName}}/{{.OriginalName}}"
 {{- end}}
+
+{{- range .MethodSets}}
+  {{$svcType}}_{{.OriginalName}}_Method = "{{.Method}}"
+  {{$svcType}}_{{.OriginalName}}_Path = "{{.Path}}"
+{{- end}}
 )
 
 type {{$svcType}}HTTPServer interface {
@@ -58,26 +63,34 @@ type {{$svcType}}HTTPClient interface {
 }
 
 type {{$svcType}}HTTPClientImpl struct{
-	cc *http.Client
+  baseUrl string
+	client  *http.Client
 }
 
-func New{{$svcType}}HTTPClient (client *http.Client) {{$svcType}}HTTPClient {
-	return &{{$svcType}}HTTPClientImpl{client}
+func New{{$svcType}}HTTPClient (opts ...option.ClientOption) {{$svcType}}HTTPClient {
+  options := option.NewClientOptions(opts...)
+	return &{{$svcType}}HTTPClientImpl{
+    baseUrl: options.BaseURL,
+    client: &http.Client{
+      Timeout: options.Timeout,
+    },
+  }
 }
 
 {{range .MethodSets}}
-func (c *{{$svcType}}HTTPClientImpl) {{.Name}}(ctx context.Context, in *{{.Request}}, opts ...option.Option) (*{{.Reply}}, error) {
+func (c *{{$svcType}}HTTPClientImpl) {{.Name}}(ctx context.Context, in *{{.Request}}, opts ...option.BinderOption) (*{{.Reply}}, error) {
 	out := new({{.Reply}})
-	pattern := "{{.Path}}"
-  req, err := http.NewRequest("{{.Method}}", pattern, nil)
+  url := fmt.Sprintf("%s/%s", c.baseUrl, {{$svcType}}_{{.OriginalName}}_Path)
+  req, err := http.NewRequest({{$svcType}}_{{.OriginalName}}_Method, url, nil)
   if err != nil {
     return nil, err
   }
+  opts = append(opts, option.WithOperation(Operation_{{$svcType}}_{{.OriginalName}}))
   if err = binder.NewRequestEncoder(req, opts...).Bind(in); err != nil {
       return nil, err
   }
   req = req.WithContext(ctx)
-  res, err := c.cc.Do(req)
+  res, err := c.client.Do(req)
 	if err != nil {
 		return nil, err
 	}

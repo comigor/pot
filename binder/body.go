@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/afikrim/pot/binder/option"
 	"github.com/afikrim/pot/errors"
+	"github.com/afikrim/pot/option"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
