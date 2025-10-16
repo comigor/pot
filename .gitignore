@@ -165,5 +165,6 @@ Temporary Items
 
 
 # generated files in example
-example/gen
-protoc-gen-go-http
+/example/gen
+/example/protoc-gen-go-http
+/protoc-gen-go-http

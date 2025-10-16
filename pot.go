@@ -72,7 +72,7 @@ func httpHandlerWrapper(impl interface{}, handler MethodHandlerFunc) http.Handle
 	}
 }
 
-func RegisterService(desc *ServiceDescriptor, impl interface{}) http.Handler {
+func RegisterServiceWithChi(desc *ServiceDescriptor, impl interface{}, router chi.Router) http.Handler {
 	if impl != nil {
 		ht := reflect.TypeOf(desc.HandlerType).Elem()
 		st := reflect.TypeOf(impl)
@@ -81,7 +81,6 @@ func RegisterService(desc *ServiceDescriptor, impl interface{}) http.Handler {
 		}
 	}
 
-	router := chi.NewRouter()
 	for _, method := range desc.Methods {
 		switch method.HttpMethod {
 		case http.MethodGet:
@@ -100,4 +99,9 @@ func RegisterService(desc *ServiceDescriptor, impl interface{}) http.Handler {
 	}
 
 	return router
+}
+
+func RegisterService(desc *ServiceDescriptor, impl interface{}) http.Handler {
+	router := chi.NewRouter()
+	return RegisterServiceWithChi(desc, impl, router)
 }
