@@ -25,6 +25,10 @@ func Register{{$svcType}}HTTPServer(srv {{$svcType}}HTTPServer) http.Handler {
   return pot.RegisterService(&_{{$svcType}}_HTTP_ServiceDesc, srv)
 }
 
+func Register{{$svcType}}HTTPServerWithChi(srv {{$svcType}}HTTPServer, router v5.Router) http.Handler {
+  return pot.RegisterServiceWithChi(&_{{$svcType}}_HTTP_ServiceDesc, srv, router)
+}
+
 {{range .Methods}}
 func _{{$svcType}}_{{.Name}}{{.Num}}_HTTP_Handler(ctx context.Context, srv interface{}, dec pot.DecoderFunc, middleware pot.MiddlewareFunc) (interface{}, error) {
   in := new({{.Request}})

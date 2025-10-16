@@ -14,6 +14,7 @@ import (
 const (
 	contextPackage = protogen.GoImportPath("context")
 	netHttpPackage = protogen.GoImportPath("net/http")
+	chiPackage     = protogen.GoImportPath("github.com/go-chi/chi/v5")
 	fmtPackage     = protogen.GoImportPath("fmt")
 	errorsPackage  = protogen.GoImportPath("github.com/afikrim/pot/errors")
 	potPackage     = protogen.GoImportPath("github.com/afikrim/pot")
@@ -63,6 +64,7 @@ func generateFileContent(gen *protogen.Plugin, file *protogen.File, g *protogen.
 	g.P("// is compatible with the pot package it is being compiled against.")
 	g.P("var _ = new(", contextPackage.Ident("Context"), ")")
 	g.P("var _ = new(", netHttpPackage.Ident("Server"), ")")
+	g.P("var _ = new(", chiPackage.Ident("Router"), ")")
 	g.P("var _ = ", fmtPackage.Ident("Sprint"), "()")
 	g.P("var _ = ", errorsPackage.Ident("ErrGeneralBadRequest"))
 	g.P("var _ = new(", potPackage.Ident("ServiceDescriptor"), ")")
