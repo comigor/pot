@@ -1,4 +1,4 @@
-github.com/afikrim/pot v0.0.7-0.20241111104439-4a6a1b7c28a2/go.mod h1:8YNO66eQnpSvptQv81z7DWSrRy7cKr0n+cdwZluVtok=
+github.com/comigor/pot v0.0.7-0.20241111104439-4a6a1b7c28a2/go.mod h1:8YNO66eQnpSvptQv81z7DWSrRy7cKr0n+cdwZluVtok=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/go-chi/chi/v5 v5.1.0 h1:acVI1TYaD+hhedDJ3r54HyA6sExp3HfXq7QWEEY/xMw=

@@ -3,7 +3,7 @@ package binder
 import (
 	"net/http"
 
-	"github.com/afikrim/pot/option"
+	"github.com/comigor/pot/option"
 )
 
 type RequestEncoder struct {

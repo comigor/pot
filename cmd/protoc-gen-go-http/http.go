@@ -16,10 +16,10 @@ const (
 	netHttpPackage = protogen.GoImportPath("net/http")
 	chiPackage     = protogen.GoImportPath("github.com/go-chi/chi/v5")
 	fmtPackage     = protogen.GoImportPath("fmt")
-	errorsPackage  = protogen.GoImportPath("github.com/afikrim/pot/errors")
-	potPackage     = protogen.GoImportPath("github.com/afikrim/pot")
-	binderPackage  = protogen.GoImportPath("github.com/afikrim/pot/binder")
-	optionPackage  = protogen.GoImportPath("github.com/afikrim/pot/option")
+	errorsPackage  = protogen.GoImportPath("github.com/comigor/pot/errors")
+	potPackage     = protogen.GoImportPath("github.com/comigor/pot")
+	binderPackage  = protogen.GoImportPath("github.com/comigor/pot/binder")
+	optionPackage  = protogen.GoImportPath("github.com/comigor/pot/option")
 
 	deprecationComment = "// Deprecated: Do not use."
 )

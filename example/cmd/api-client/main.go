@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/afikrim/pot/example/handler/pb/blog"
-	"github.com/afikrim/pot/option"
+	"github.com/comigor/pot/example/handler/pb/blog"
+	"github.com/comigor/pot/option"
 	"github.com/google/uuid"
 )
 

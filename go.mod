@@ -1,4 +1,4 @@
-module github.com/afikrim/pot
+module github.com/comigor/pot
 
 go 1.23
 

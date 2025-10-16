@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/afikrim/pot/example/handler"
-	"github.com/afikrim/pot/example/handler/pb/blog"
+	"github.com/comigor/pot/example/handler"
+	"github.com/comigor/pot/example/handler/pb/blog"
 	"github.com/labstack/echo"
 )
 

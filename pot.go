@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"reflect"
 
-	"github.com/afikrim/pot/binder"
-	potErrors "github.com/afikrim/pot/errors"
+	"github.com/comigor/pot/binder"
+	potErrors "github.com/comigor/pot/errors"
 	"github.com/go-chi/chi/v5"
 )
 

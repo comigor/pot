@@ -5,7 +5,7 @@ package blog;
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 
-option go_package = "github.com/afikrim/pot/example/handler/pb/blog";
+option go_package = "github.com/comigor/pot/example/handler/pb/blog";
 
 message CreateBlogRequest {
   string author_id = 1;

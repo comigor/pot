@@ -3,7 +3,7 @@ package handler
 import (
 	"context"
 
-	"github.com/afikrim/pot/example/handler/pb/blog"
+	"github.com/comigor/pot/example/handler/pb/blog"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/emptypb"
 )

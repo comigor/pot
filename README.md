@@ -17,7 +17,7 @@ Traditional setups often involve creating a gRPC handler and then wrapping it wi
 To install pot, you can simply use go install:
 
 ```sh
-go install github.com/afikrim/pot/cmd/protoc-gen-go-http@latest
+go install github.com/comigor/pot/cmd/protoc-gen-go-http@latest
 ```
 
 ### Usage
@@ -46,4 +46,4 @@ pot was inspired by the design and ideas of the [go-kratos](https://github.com/g
 
 ### License
 
-This project is licensed under the MIT License. See the [LICENSE](https://github.com/afikrim/pot/blob/main/LICENSE) file for more details.
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/comigor/pot/blob/main/LICENSE) file for more details.
